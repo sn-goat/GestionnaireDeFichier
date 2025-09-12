@@ -6,8 +6,6 @@ public class Serveur
 {
 	private static ServerSocket listener;
 	
-	private final static String IP_ADDRESS = "127.0.0.1";
-	
 	private static  boolean isValidPort = false;
 	private  static boolean isValidIP = false;
 	
