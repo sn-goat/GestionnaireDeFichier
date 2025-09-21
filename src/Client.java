@@ -68,7 +68,7 @@ public class Client {
 				}
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
-				System.out.println("Please enter a valid type.");
+				System.out.println("Please enter a valid port number.");
 				scanner.nextLine();
 			} 
 		}
