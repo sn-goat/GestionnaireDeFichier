@@ -8,21 +8,45 @@ public class Serveur
 	
 	private static  boolean isValidPort = false;
 	private  static boolean isValidIP = false;
+	private static String address = null;
+	private static int port = 0;
 	
-
 	public static void main(String[] args) throws Exception
 	{
 		int clientNumber = 0;
-		Scanner scanner = new Scanner(System.in);
-		String serverAddress = null;
-		int serverPort = 0;
+		
+		checkParamsServer();
 
+		listener = new ServerSocket();
+		listener.setReuseAddress(true);
+		InetAddress serverIP = InetAddress.getByName(address);
+
+		listener.bind(new InetSocketAddress(serverIP, port));
+		System.out.format("The server is running %s:%d\n", address, port);
+
+		try
+		{
+			while(true)
+			{ 
+				new ClientHandler(listener.accept(), clientNumber++).start();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		finally 
+		{ 
+			listener.close();
+		}
+	}
+	
+	private static void checkParamsServer() {
+		Scanner scanner = new Scanner(System.in);
 		
 		while(!isValidIP) {
 			System.out.print("Enter a valid IP address: ");
-			serverAddress = scanner.nextLine();
+			address = scanner.nextLine();
 		
-			String[] bytes = serverAddress.split("\\.");
+			String[] bytes = address.split("\\.");
 			int number = 0;
 			
 			try {
@@ -49,8 +73,8 @@ public class Serveur
 		while(!isValidPort) {
 			System.out.print("Enter a valid listenig port number: ");
 			try {
-				serverPort = scanner.nextInt();
-				if(serverPort >= 5000 && serverPort <= 5050) {
+				port = scanner.nextInt();
+				if(port >= 5000 && port <= 5050) {
 					isValidPort = true;
 				} else {
 					throw new Exception("The port number is not within 5000 and 5050.");
@@ -62,26 +86,8 @@ public class Serveur
 			} 
 		}
 		
-
-		listener = new ServerSocket();
-		listener.setReuseAddress(true);
-		InetAddress serverIP = InetAddress.getByName(serverAddress);
-
-		listener.bind(new InetSocketAddress(serverIP, serverPort));
-		System.out.format("The server is running %s:%d\n", serverAddress, serverPort);
 		scanner.close();
-
-		try
-		{
-			while(true)
-			{ 
-				new ClientHandler(listener.accept(), clientNumber++).start();
-			}
-		}
-		finally 
-		{ 
-			listener.close();
-		}
+		
 	}
 
 	private static class ClientHandler extends Thread
@@ -97,12 +103,41 @@ public class Serveur
 			System.out.println("New connection with client#" + clientNumber + " at " + socket);
 		}
 		
+		private void receiveFile(String fileName) throws Exception {
+			DataInputStream in = new DataInputStream(socket.getInputStream());
+			FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+			
+			int bytes = 0;
+			long size = in.readLong();
+			
+			byte[] buffer = new byte [4 * 1024];
+		
+			
+			while (size > 0 && 
+			(bytes = in.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
+				 fileOutputStream.write(buffer, 0, bytes);
+				 size -= bytes;
+			}
+			fileOutputStream.close();
+			in.close();
+			
+			System.out.println("File is received");
+			
+			
+		}
+		
 		public void run()
 		{
 			try
 			{
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				out.writeUTF("Hello from server - you are client#" + clientNumber);
+				try {
+					receiveFile("./utils/server/NewFile.txt");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 			}
 			catch (IOException e)
 			{
