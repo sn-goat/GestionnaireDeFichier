@@ -94,46 +94,27 @@ public class Serveur
 	{
 		private Socket socket;
 		private int clientNumber;
+		private SessionManager sessionManager;
 
 		public ClientHandler(Socket socket, int clientNumber) 
 		{ 
 			this.socket = socket;
 			this.clientNumber = clientNumber;
+			this.sessionManager =  new SessionManager(socket);
 
 			System.out.println("New connection with client#" + clientNumber + " at " + socket);
 		}
 		
-		private void receiveFile(String fileName) throws Exception {
-			DataInputStream in = new DataInputStream(socket.getInputStream());
-			FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-			
-			int bytes = 0;
-			long size = in.readLong();
-			
-			byte[] buffer = new byte [4 * 1024];
 		
-			
-			while (size > 0 && 
-			(bytes = in.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-				 fileOutputStream.write(buffer, 0, bytes);
-				 size -= bytes;
-			}
-			fileOutputStream.close();
-			in.close();
-			
-			System.out.println("File is received");
-			
-			
-		}
 		
 		public void run()
 		{
 			try
 			{
-				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-				out.writeUTF("Hello from server - you are client#" + clientNumber);
+				sessionManager.sendText("Hello from server - you are client#" + clientNumber);
 				try {
-					receiveFile("./utils/server/NewFile.txt");
+					sessionManager.receiveFile("./utils/server/NewFile.txt");
+					sessionManager.sendFile("./utils/server/file.txt");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

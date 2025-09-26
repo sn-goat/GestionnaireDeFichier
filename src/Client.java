@@ -1,9 +1,10 @@
-import java.io.*;
+//import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
 	private static Socket socket;
+	private static SessionManager sessionManager;
 	private static  boolean isValidPort = false;
 	private  static boolean isValidIP = false;
 	private static String address = null;
@@ -16,12 +17,14 @@ public class Client {
 		socket = new Socket(address, port);
 		System.out.format("Serveur lancé sur [%s:%d]\n", address, port);
 		
-		DataInputStream in = new DataInputStream(socket.getInputStream());
+		sessionManager =  new SessionManager(socket);
 		
-		String helloMessageFromServer = in.readUTF();
+		
+		String helloMessageFromServer = sessionManager.receiveText();
 		System.out.println(helloMessageFromServer);
 		
-		sendFile("./utils/client/file.txt");
+		sessionManager.sendFile("./utils/client/file.txt");
+		sessionManager.receiveFile("./utils/client/NewFile.txt");
 		
 		socket.close();
 	}
@@ -77,26 +80,6 @@ public class Client {
 		
 	}
 	
-	private static void sendFile(String path) throws Exception {
-		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-		
-		int bytes = 0;
-		
-		File file = new File(path);
-		FileInputStream fileInputStream = new FileInputStream(file);
-		
-		out.writeLong(file.length());
-		
-		byte[] buffer = new byte[4*1024];
-		
-		while ((bytes=fileInputStream.read(buffer)) != -1) {
-			out.write(buffer, 0, bytes);
-			out.flush();
-		}
-		fileInputStream.close();
-		out.close();
-		
-		
-		
-	}
+	
+	
 }
