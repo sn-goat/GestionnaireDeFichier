@@ -124,8 +124,7 @@ public class Serveur
 		    
 		private void communicateWithClient() throws IOException {
 		    boolean running = true;
-		    String fileRootServer = "./utils/server/";
-	        String fileRootClient = "./utils/client/";
+		    String fileRootServer = "./utils/server/"; // temporary 
 		    
 		    sessionManager.sendText("Welcome to the file server - you are client#" + clientNumber + ". Type exit to quit.");
 		    
@@ -164,8 +163,8 @@ public class Serveur
 		                            sessionManager.sendText("Error: No file specified for upload");
 		                            continue;
 		                        }
-		                        sessionManager.downloadFile(fileRootClient + argument);
-		                        sessionManager.sendText("Le fichier " + argument + " à bien été téléversé.");
+		                        sessionManager.downloadFile(fileRootServer + argument);
+		                        sessionManager.sendText("File " + argument + " has been successfully uploaded");
 		                        break;
 		                    case DOWNLOAD:
 		                        if (argument.isEmpty()) {
@@ -173,13 +172,13 @@ public class Serveur
 		                            continue;
 		                        }
 		                        sessionManager.uploadFile(fileRootServer + argument);
-		                        sessionManager.sendText("Le fichier " + argument + " à bien été téléchargé");
+		                        sessionManager.sendText("File " + argument + " has been successfully downloaded");
 		                        break;
 		                    case DELETE:
 		                        sessionManager.sendText("Deleted file: " + argument);
 		                        break;
 		                    case EXIT:
-		                        sessionManager.sendText("Vous avez été déconnecté avec succès.");
+		                        sessionManager.sendText("Goodbye from the server");
 		                        running = false;
 		                        break;
 		                }

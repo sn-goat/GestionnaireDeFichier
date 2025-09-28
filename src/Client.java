@@ -92,9 +92,7 @@ public class Client {
         
         String command = "";
         String argument = "";
-        String fileRootClient = "./utils/client/";
-        String fileRootServer = "./utils/server/";
-        
+        String fileRootClient = "./utils/client/";  // temporary 
         while (true) {
             String input = scanner.nextLine();
             Scanner lineScanner = new Scanner(input);
@@ -135,7 +133,7 @@ public class Client {
                                 break;
                             }
                             sessionManager.sendText(cmd.name() + " " + argument);
-                            sessionManager.downloadFile(fileRootServer + argument);
+                            sessionManager.downloadFile(fileRootClient + argument);
                             System.out.println(sessionManager.receiveText());
                         } catch (IOException e) {
                             System.out.println("Error downloading file: " + e.getMessage());

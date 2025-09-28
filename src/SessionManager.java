@@ -26,7 +26,6 @@ public class SessionManager {
         }
         fileInputStream.close();
         
-        System.out.println("File is sent");
     }
     
     public void downloadFile(String fileName) throws IOException {
@@ -46,7 +45,6 @@ public class SessionManager {
         }
         fileOutputStream.close();
     
-        System.out.println("File is received");
     }
     
     public void sendText(String text) throws IOException {
