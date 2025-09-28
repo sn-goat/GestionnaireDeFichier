@@ -18,9 +18,7 @@ public class Client {
         try {
             checkParamsServer(scanner);
             
-            socket = new Socket(address, port);
-            System.out.format("Serveur lancé sur [%s:%d]\n", address, port);
-            
+            socket = new Socket(address, port); 
             sessionManager = new SessionManager(socket);
             
             String helloMessageFromServer = sessionManager.receiveText();
