@@ -187,8 +187,7 @@ public class Serveur
 		                sessionManager.sendText("Error: Unknown command: " + command);
 		            }
 		        } catch (IOException e) {
-		            System.out.println("Client#" + clientNumber + " disconnected");
-		            running = false;
+		            System.out.println(e.getMessage());
 		        }
 		    }
 		    
