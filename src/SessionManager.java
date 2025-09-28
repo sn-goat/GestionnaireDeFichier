@@ -2,13 +2,12 @@ import java.io.*;
 import java.net.*;
 
 public class SessionManager {
-    private Socket socket;  // Changed from static to instance variable
+    private Socket socket;
     
     public SessionManager(Socket sessionSocket) {
-        this.socket = sessionSocket;  // Use this.socket instead of socket
+        this.socket = sessionSocket;
     }
-    
-    // Rest of the code remains the same
+   
     public void uploadFile(String path) throws IOException {
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         
