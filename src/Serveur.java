@@ -22,7 +22,7 @@ public class Serveur
 		InetAddress serverIP = InetAddress.getByName(address);
 
 		listener.bind(new InetSocketAddress(serverIP, port));
-		System.out.format("The server is running %s:%d\n", address, port);
+		System.out.format("The server is running at %s:%d\n", address, port);
 
 		try
 		{
@@ -111,31 +111,95 @@ public class Serveur
 		{
 			try
 			{
-				sessionManager.sendText("Hello from server - you are client#" + clientNumber);
-				try {
-					sessionManager.receiveFile("./utils/server/NewFile.txt");
-					sessionManager.sendFile("./utils/server/file.txt");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
+					communicateWithClient();
 			}
 			catch (IOException e)
 			{
 				System.out.println("Error handling client#" + clientNumber + " : " + e);
 			}
-			finally
-			{
-				try
-				{
-					socket.close();
-				}
-				catch (IOException e)
-				{
-					System.out.println("Could not close a socket");
-				}
-				System.out.println("Connection with client#" + clientNumber + " closed");
-			}
 		}
+		
+		
+		    
+		    
+		private void communicateWithClient() throws IOException {
+		    boolean running = true;
+		    String fileRootServer = "./utils/server/";
+	        String fileRootClient = "./utils/client/";
+		    
+		    sessionManager.sendText("Welcome to the file server - you are client#" + clientNumber + ". Type exit to quit.");
+		    
+		    while (running) {
+		        try {
+		            String input = sessionManager.receiveText();
+		            
+		            String command = "";
+		            String argument = "";
+		            
+		            int spaceIndex = input.indexOf(' ');
+		            if (spaceIndex > 0) {
+		                command = input.substring(0, spaceIndex);
+		                argument = input.substring(spaceIndex + 1).trim();
+		            } else {
+		                command = input.trim();
+		            }
+		            
+		            System.out.println("Client#" + clientNumber + " sent command: " + command.toLowerCase() + 
+		                               (argument.isEmpty() ? "" : " with argument: " + argument));
+		            
+		            try {
+		                Command cmd = Command.fromString(command);
+		                switch (cmd) {
+		                    case CD:
+		                        sessionManager.sendText("Changed directory to: " + argument);
+		                        break;
+		                    case LS:
+		                        sessionManager.sendText("Directory listing would be shown here");
+		                        break;
+		                    case MKDIR:
+		                        sessionManager.sendText("Created directory: " + argument);
+		                        break;
+		                    case UPLOAD:
+		                        if (argument.isEmpty()) {
+		                            sessionManager.sendText("Error: No file specified for upload");
+		                            continue;
+		                        }
+		                        sessionManager.downloadFile(fileRootClient + argument);
+		                        sessionManager.sendText("Le fichier " + argument + " à bien été téléversé.");
+		                        break;
+		                    case DOWNLOAD:
+		                        if (argument.isEmpty()) {
+		                            sessionManager.sendText("Error: No file specified for download");
+		                            continue;
+		                        }
+		                        sessionManager.uploadFile(fileRootServer + argument);
+		                        sessionManager.sendText("Le fichier " + argument + " à bien été téléchargé");
+		                        break;
+		                    case DELETE:
+		                        sessionManager.sendText("Deleted file: " + argument);
+		                        break;
+		                    case EXIT:
+		                        sessionManager.sendText("Vous avez été déconnecté avec succès.");
+		                        running = false;
+		                        break;
+		                }
+		            } catch (IllegalArgumentException e) {
+		                sessionManager.sendText("Error: Unknown command: " + command);
+		            }
+		        } catch (IOException e) {
+		            System.out.println("Client#" + clientNumber + " disconnected");
+		            running = false;
+		        }
+		    }
+		    
+		    try {
+		        socket.close();
+		    } catch (IOException e) {
+		        System.out.println("Could not close socket for client#" + clientNumber);
+		    }
+		    System.out.println("Connection with client#" + clientNumber + " closed");
+		}
+		
+		
 	}
 }
