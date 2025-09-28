@@ -93,7 +93,7 @@ public class Client {
         String command = "";
         String argument = "";
         String fileRootClient = "./utils/client/";
-        String fileRootServer = ".utils/server/";
+        String fileRootServer = "./utils/server/";
         
         while (true) {
             String input = scanner.nextLine();
