@@ -11,21 +11,21 @@ public class Client {
     private static boolean isValidIP = false;
     private static String address = null;
     private static int port = 0;
-    
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        
+
         try {
             checkParamsServer(scanner);
-            
-            socket = new Socket(address, port); 
+
+            socket = new Socket(address, port);
             sessionManager = new SessionManager(socket);
-            
+
             String helloMessageFromServer = sessionManager.receiveText();
             System.out.println(helloMessageFromServer);
-            
+
             communicateWithServer(scanner);
-            
+
         } catch (Exception e) {
             System.out.println("Fatal error: " + e.getMessage());
             e.printStackTrace();
@@ -37,26 +37,33 @@ public class Client {
             } catch (IOException e) {
                 System.out.println("Error closing socket: " + e.getMessage());
             }
+
             scanner.close();
         }
     }
-    
+
     private static void checkParamsServer(Scanner scanner) {
-        while(!isValidIP) {
+        int maximumBytesLength = 4;
+        int highestIntegerValueOneByte = 255;
+        int minimumPortNumber = 5000;
+        int maximumPortNumber = 5050;
+
+        while (!isValidIP) {
             System.out.print("Enter a valid IP address: ");
             address = scanner.nextLine();
-        
+
             String[] bytes = address.split("\\.");
             int number = 0;
-            
+
             try {
-                if(bytes.length == 4) {
-                    for(int i = 0; i < 4; ++i) {
+                if (bytes.length == maximumBytesLength) {
+                    for (int i = 0; i < maximumBytesLength; ++i) {
                         number = Integer.parseInt(bytes[i]);
-                        if (number < 0 || number > 255) {
+                        if (number < 0 || number > highestIntegerValueOneByte) {
                             throw new Exception("Each byte must be within 0 and 255 inclusively.");
                         }
                     }
+
                     isValidIP = true;
                 } else {
                     throw new Exception("The IP address must be only 4 byte long.");
@@ -66,13 +73,13 @@ public class Client {
                 System.out.println("Please enter a valid IP format.");
             }
         }
-        
-        while(!isValidPort) {
+
+        while (!isValidPort) {
             System.out.print("Enter a valid listening port number: ");
             try {
                 port = scanner.nextInt();
                 scanner.nextLine();
-                if(port >= 5000 && port <= 5050) {
+                if (port >= minimumPortNumber && port <= maximumPortNumber) {
                     isValidPort = true;
                 } else {
                     throw new Exception("The port number is not within 5000 and 5050.");
@@ -84,32 +91,48 @@ public class Client {
             }
         }
     }
-    
+
     private static void communicateWithServer(Scanner scanner) throws IOException {
         System.out.print(getInfo());
-        
+
         String command = "";
         String argument = "";
-        String fileRootClient = "./utils/client/";  // temporary 
+        String fileRootClient = "./utils/client/";
+
         while (true) {
             String input = scanner.nextLine();
             Scanner lineScanner = new Scanner(input);
-            
+
             command = lineScanner.hasNext() ? lineScanner.next() : "";
             argument = lineScanner.hasNext() ? lineScanner.nextLine().trim() : "";
             lineScanner.close();
-            
+
             try {
                 Command cmd = Command.fromString(command);
                 switch (cmd) {
                     case CD:
-                        System.out.println("Change directory");
+                        try {
+                            sessionManager.sendText(cmd.name() + " " + argument);
+                            System.out.println(sessionManager.receiveText());
+                        } catch (IOException e) {
+                            System.out.println("Error changing directory: " + e.getMessage());
+                        }
                         break;
                     case LS:
-                        System.out.println("List directory");
+                        try {
+                            sessionManager.sendText(cmd.name() + " " + argument);
+                            System.out.println(sessionManager.receiveText());
+                        } catch (IOException e) {
+                            System.out.println("Error listing directory: " + e.getMessage());
+                        }
                         break;
                     case MKDIR:
-                        System.out.println("Make directory");
+                        try {
+                            sessionManager.sendText(cmd.name() + " " + argument);
+                            System.out.println(sessionManager.receiveText());
+                        } catch (IOException e) {
+                            System.out.println("Error creating directory: " + e.getMessage());
+                        }
                         break;
                     case UPLOAD:
                         try {
@@ -138,7 +161,12 @@ public class Client {
                         }
                         break;
                     case DELETE:
-                        System.out.println("Delete file");
+                        try {
+                            sessionManager.sendText(cmd.name() + " " + argument);
+                            System.out.println(sessionManager.receiveText());
+                        } catch (IOException e) {
+                            System.out.println("Error deleting file: " + e.getMessage());
+                        }
                         break;
                     case EXIT:
                         try {
@@ -152,19 +180,19 @@ public class Client {
             } catch (IllegalArgumentException e) {
                 System.out.println("Unknown command: " + command);
             }
-            
+
             System.out.print(getInfo());
         }
     }
-    
+
     private static String getDate() {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
         Date now = new Date();
         String strDate = sdfDate.format(now);
         return strDate;
     }
-    
+
     private static String getInfo() {
-        return "[" + socket.getLocalAddress().getHostAddress()+ ":" + socket.getLocalPort() + " - " + getDate() + "] : ";
+        return "[" + socket.getLocalAddress().getHostAddress() + ":" + socket.getLocalPort() + " - " + getDate() + "] : ";
     }
 }
