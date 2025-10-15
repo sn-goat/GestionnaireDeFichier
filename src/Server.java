@@ -97,7 +97,7 @@ public class Server {
             this.sessionManager = new SessionManager(socket);
             this.currentDirectory = fileRootServer;
 
-            System.out.println("New connection with client #" + clientNumber + " at " + socket);
+            System.out.println("New connection with client#" + clientNumber + " at " + socket);
         }
 
         private boolean isPathSafe(String path) {
@@ -190,14 +190,14 @@ public class Server {
             try {
                 communicateWithClient();
             } catch (IOException e) {
-                System.out.println("Error handling client #" + clientNumber + " : " + e);
+                System.out.println("Error handling client#" + clientNumber + " : " + e);
             }
         }
 
         private void communicateWithClient() throws IOException {
             boolean running = true;
 
-            sessionManager.sendText("Welcome to the file server - you are client #" + clientNumber +
+            sessionManager.sendText("Welcome to the file server - you are client#" + clientNumber +
                     ". Current directory: " + this.currentDirectory + ". Type exit to quit.");
 
             while (running) {
@@ -215,7 +215,7 @@ public class Server {
                         command = input.trim();
                     }
 
-                    System.out.println("Client #" + clientNumber + " sent command: " + command.toLowerCase() +
+                    System.out.println("Client#" + clientNumber + " sent command: " + command.toLowerCase() +
                             (argument.isEmpty() ? "" : " with argument: " + argument));
 
                     try {
@@ -268,10 +268,10 @@ public class Server {
             try {
                 socket.close();
             } catch (IOException e) {
-                System.out.println("Could not close socket for client #" + clientNumber);
+                System.out.println("Could not close socket for client#" + clientNumber);
             }
 
-            System.out.println("Connection with client #" + clientNumber + " closed");
+            System.out.println("Connection with client#" + clientNumber + " closed");
         }
     }
 }
