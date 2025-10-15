@@ -175,7 +175,19 @@ public class Serveur
 		                        sessionManager.sendText("File " + argument + " has been successfully downloaded");
 		                        break;
 		                    case DELETE:
-		                        sessionManager.sendText("Deleted file: " + argument);
+		                    	if (argument.isEmpty()) {
+		                    		sessionManager.sendText("Error: No file or directory specified for deletion");
+		                    		break;
+		                    	}
+		                    	
+		                    	File fileRef = new File(fileRootServer + argument);
+		                    	try {
+		                    		if (!fileRef.exists()) { throw new IOException("File not Found!"); }
+		                    		if (!fileRef.delete()) { throw new IOException("Unable to delete File"); }
+		                    		sessionManager.sendText("Deleted file: " + argument);
+		                    	} catch (IOException e) {
+		                    		sessionManager.sendText("Server error : " + e.getMessage());
+		                    	}
 		                        break;
 		                    case EXIT:
 		                        sessionManager.sendText("Goodbye from the server");

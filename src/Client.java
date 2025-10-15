@@ -138,7 +138,17 @@ public class Client {
                         }
                         break;
                     case DELETE:
-                        System.out.println("Delete file");
+                        try {
+                        	if (argument.isEmpty()) {
+                        		System.out.println("No file/dir to delete specified!");
+                        		break;
+                        	}
+                        	
+                        	sessionManager.sendText(cmd.name() + " " + argument);
+                        	System.out.println(sessionManager.receiveText());
+                        } catch (IOException e) {
+                        	System.out.println("Error on file delete : " + e.getMessage());
+                        }
                         break;
                     case EXIT:
                         try {
