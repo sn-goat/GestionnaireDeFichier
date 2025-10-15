@@ -10,7 +10,7 @@ public class SessionManager {
 
     public void uploadFile(String path) throws IOException {
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-        int maximumBytesLength = 4;
+        int maximumBytes = 4;
         int bytesOneKilobyte = 1024;
         int bytes = 0;
 
@@ -19,7 +19,7 @@ public class SessionManager {
 
         out.writeLong(file.length());
 
-        byte[] buffer = new byte[maximumBytesLength * bytesOneKilobyte];
+        byte[] buffer = new byte[maximumBytes * bytesOneKilobyte];
 
         while ((bytes = fileInputStream.read(buffer)) != -1) {
             out.write(buffer, 0, bytes);
@@ -32,12 +32,12 @@ public class SessionManager {
     public void downloadFile(String fileName) throws IOException {
         DataInputStream in = new DataInputStream(socket.getInputStream());
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-        int maximumBytesLength = 4;
+        int maximumBytes = 4;
         int bytesOneKilobyte = 1024;
         int bytes = 0;
         long size = in.readLong();
 
-        byte[] buffer = new byte[maximumBytesLength * bytesOneKilobyte];
+        byte[] buffer = new byte[maximumBytes * bytesOneKilobyte];
 
         while (size > 0 &&
                 (bytes = in.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {

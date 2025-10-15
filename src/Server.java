@@ -8,6 +8,7 @@ public class Server {
     private static boolean isValidIP = false;
     private static String address = null;
     private static int port = 0;
+    private final String fileRootServer = "./utils/server/";
 
     public static void main(String[] args) throws Exception {
         int clientNumber = 0;
@@ -34,7 +35,7 @@ public class Server {
 
     private static void checkParamsServer() {
         Scanner scanner = new Scanner(System.in);
-        int maximumBytesLength = 4;
+        int maximumBytes = 4;
         int highestIntegerValueOneByte = 255;
         int minimumPortNumber = 5000;
         int maximumPortNumber = 5050;
@@ -47,8 +48,8 @@ public class Server {
             int number = 0;
 
             try {
-                if (bytes.length == maximumBytesLength) {
-                    for (int i = 0; i < maximumBytesLength; ++i) {
+                if (bytes.length == maximumBytes) {
+                    for (int i = 0; i < maximumBytes; ++i) {
                         number = Integer.parseInt(bytes[i]);
                         if (number < 0 || number > highestIntegerValueOneByte) {
                             throw new Exception("Each byte must be within 0 and 255 inclusively.");
@@ -67,6 +68,7 @@ public class Server {
 
         while (!isValidPort) {
             System.out.print("Enter a valid listenig port number: ");
+
             try {
                 port = scanner.nextInt();
                 if (port >= minimumPortNumber && port <= maximumPortNumber) {
@@ -88,14 +90,12 @@ public class Server {
         private Socket socket;
         private int clientNumber;
         private SessionManager sessionManager;
-        private String currentDirectory;
-        private final String fileRootServer = "./utils/server/";
+        private String currentDirectory = Server.fileRootServer;
 
         public ClientHandler(Socket socket, int clientNumber) {
             this.socket = socket;
             this.clientNumber = clientNumber;
             this.sessionManager = new SessionManager(socket);
-            this.currentDirectory = fileRootServer;
 
             System.out.println("New connection with client#" + clientNumber + " at " + socket);
         }
@@ -103,7 +103,7 @@ public class Server {
         private boolean isPathSafe(String path) {
             try {
                 String canonicalCurrent = new File(path).getCanonicalPath();
-                String canonicalRoot = new File(fileRootServer).getCanonicalPath();
+                String canonicalRoot = new File(Server.fileRootServer).getCanonicalPath();
                 return canonicalCurrent.startsWith(canonicalRoot);
             } catch (IOException e) {
                 return false;
@@ -112,7 +112,7 @@ public class Server {
 
         private String handleCD(String argument) {
             if (argument.isEmpty()) {
-                currentDirectory = fileRootServer;
+                currentDirectory = Server.fileRootServer;
                 return "Changed to root directory: " + currentDirectory;
             }
 
@@ -156,7 +156,7 @@ public class Server {
             } else {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        result.append("[DIR]  ").append(file.getName()).append("/\n");
+                        result.append("[DIR] ").append(file.getName()).append("/\n");
                     } else {
                         result.append("[FILE] ").append(file.getName())
                                 .append(" (").append(file.length()).append(" bytes)\n");

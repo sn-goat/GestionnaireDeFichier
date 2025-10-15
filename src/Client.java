@@ -43,7 +43,7 @@ public class Client {
     }
 
     private static void checkParamsServer(Scanner scanner) {
-        int maximumBytesLength = 4;
+        int maximumBytes = 4;
         int highestIntegerValueOneByte = 255;
         int minimumPortNumber = 5000;
         int maximumPortNumber = 5050;
@@ -56,8 +56,8 @@ public class Client {
             int number = 0;
 
             try {
-                if (bytes.length == maximumBytesLength) {
-                    for (int i = 0; i < maximumBytesLength; ++i) {
+                if (bytes.length == maximumBytes) {
+                    for (int i = 0; i < maximumBytes; ++i) {
                         number = Integer.parseInt(bytes[i]);
                         if (number < 0 || number > highestIntegerValueOneByte) {
                             throw new Exception("Each byte must be within 0 and 255 inclusively.");
@@ -76,6 +76,7 @@ public class Client {
 
         while (!isValidPort) {
             System.out.print("Enter a valid listening port number: ");
+
             try {
                 port = scanner.nextInt();
                 scanner.nextLine();
