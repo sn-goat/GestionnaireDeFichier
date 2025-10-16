@@ -1,5 +1,7 @@
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.io.*;
+import java.util.Date;
 import java.util.Scanner;
 
 public class Serveur
@@ -119,8 +121,17 @@ public class Serveur
 			}
 		}
 		
+		private static String getDate() {
+	        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
+	        Date now = new Date();
+	        String strDate = sdfDate.format(now);
+	        return strDate;
+	    }
+	    
+	    private String getInfo() {
+	        return "[" + this.socket.getLocalAddress().getHostAddress()+ ":" + this.socket.getLocalPort() + " - " + getDate() + "] : ";
+	    }
 		
-		    
 		    
 		private void communicateWithClient() throws IOException {
 		    boolean running = true;
@@ -143,8 +154,10 @@ public class Serveur
 		                command = input.trim();
 		            }
 		            
-		            System.out.println("Client#" + clientNumber + " sent command: " + command.toLowerCase() + 
-		                               (argument.isEmpty() ? "" : " with argument: " + argument));
+		            /*System.out.println("Client#" + clientNumber + " sent command: " + command.toLowerCase() + 
+		                               (argument.isEmpty() ? "" : " with argument: " + argument));*/
+		            
+		            System.out.println(getInfo() + ""+ command.toLowerCase() + (argument.isEmpty() ? "" : " " + argument));
 		            
 		            try {
 		                Command cmd = Command.fromString(command);

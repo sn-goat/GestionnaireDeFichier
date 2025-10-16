@@ -86,12 +86,14 @@ public class Client {
     }
     
     private static void communicateWithServer(Scanner scanner) throws IOException {
-        System.out.print(getInfo());
         
         String command = "";
         String argument = "";
         String fileRootClient = "./utils/client/";  // temporary 
         while (true) {
+        	
+        	System.out.print("> ");
+        	
             String input = scanner.nextLine();
             Scanner lineScanner = new Scanner(input);
             
@@ -162,19 +164,8 @@ public class Client {
             } catch (IllegalArgumentException e) {
                 System.out.println("Unknown command: " + command);
             }
-            
-            System.out.print(getInfo());
         }
     }
     
-    private static String getDate() {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
-        Date now = new Date();
-        String strDate = sdfDate.format(now);
-        return strDate;
-    }
     
-    private static String getInfo() {
-        return "[" + socket.getLocalAddress().getHostAddress()+ ":" + socket.getLocalPort() + " - " + getDate() + "] : ";
-    }
 }
