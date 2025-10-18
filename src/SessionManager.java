@@ -28,15 +28,6 @@ public class SessionManager {
         fileInputStream.close();
         
     }
-	
-	public void uploadEmptyFile() throws IOException {
-        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-        int bytes = 0;
-        byte[] buffer = new byte[4*1024];
-        out.write(buffer, 0, bytes);
-        out.flush();
-      
-    }
     
 	public void downloadFile(String fileName) throws IOException {
         DataInputStream in = new DataInputStream(socket.getInputStream());
