@@ -88,7 +88,7 @@ public class Client {
         
         String command = "";
         String argument = "";
-        String fileRootClient = "./utils/client/";  // temporary 
+        String fileRootClient = "./utils/client/";
         while (true) {
         	
         	System.out.print("> ");
