@@ -154,9 +154,6 @@ public class Serveur
 		                command = input.trim();
 		            }
 		            
-		            /*System.out.println("Client#" + clientNumber + " sent command: " + command.toLowerCase() + 
-		                               (argument.isEmpty() ? "" : " with argument: " + argument));*/
-		            
 		            System.out.println(getInfo() + ""+ command.toLowerCase() + (argument.isEmpty() ? "" : " " + argument));
 		            
 		            try {
@@ -174,33 +171,34 @@ public class Serveur
 		                    case UPLOAD:
 		                        if (argument.isEmpty()) {
 		                            sessionManager.sendText("Error: No file specified for upload");
-		                            continue;
+		                            break;
 		                        }
-		                        sessionManager.downloadFile(fileRootServer + argument);
-		                        sessionManager.sendText("File " + argument + " has been successfully uploaded");
+	                        	sessionManager.downloadFile(fileRootServer + argument);
+	                        	sessionManager.sendText("File " + argument + " has been successfully uploaded");
 		                        break;
 		                    case DOWNLOAD:
 		                        if (argument.isEmpty()) {
 		                            sessionManager.sendText("Error: No file specified for download");
-		                            continue;
+		                            break;
 		                        }
-		                        sessionManager.uploadFile(fileRootServer + argument);
-		                        sessionManager.sendText("File " + argument + " has been successfully downloaded");
+	                        	File filedDowload = new File(fileRootServer + argument);
+	                        	if (!filedDowload.exists()) { 
+	                        		sessionManager.sendText("File not Found!");
+	                        		throw new IOException("File not Found!");
+	                        	}
+	                        	sessionManager.sendText("Downloding file...");
+	                        	sessionManager.uploadFile(fileRootServer + argument);
+	                        	sessionManager.sendText("File " + argument + " has been successfully downloaded");
 		                        break;
 		                    case DELETE:
 		                    	if (argument.isEmpty()) {
 		                    		sessionManager.sendText("Error: No file or directory specified for deletion");
 		                    		break;
 		                    	}
-		                    	
 		                    	File fileRef = new File(fileRootServer + argument);
-		                    	try {
-		                    		if (!fileRef.exists()) { throw new IOException("File not Found!"); }
-		                    		if (!fileRef.delete()) { throw new IOException("Unable to delete File"); }
-		                    		sessionManager.sendText("Deleted file: " + argument);
-		                    	} catch (IOException e) {
-		                    		sessionManager.sendText("Server error : " + e.getMessage());
-		                    	}
+	                    		if (!fileRef.exists()) { throw new IOException("File not Found!"); }
+	                    		if (!fileRef.delete()) { throw new IOException("Unable to delete File"); }
+	                    		sessionManager.sendText("Deleted file: " + argument);
 		                        break;
 		                    case EXIT:
 		                        sessionManager.sendText("Goodbye from the server");
@@ -211,7 +209,11 @@ public class Serveur
 		                sessionManager.sendText("Error: Unknown command: " + command);
 		            }
 		        } catch (IOException e) {
-		            System.out.println(e.getMessage());
+		        	if (e.getMessage() == null) {
+		        		running = false;
+		        	}
+		        	
+		            System.out.println("Error: " + e.getMessage());
 		        }
 		    }
 		    

@@ -1,8 +1,7 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Client {
     private static Socket socket;
@@ -114,55 +113,54 @@ public class Client {
                         System.out.println("Make directory");
                         break;
                     case UPLOAD:
-                        try {
-                            if (argument.isEmpty()) {
-                                System.out.println("You must enter a file to upload.");
-                                break;
-                            }
-                            sessionManager.sendText(cmd.name() + " " + argument);
-                            sessionManager.uploadFile(fileRootClient + argument);
-                            System.out.println(sessionManager.receiveText());
-                        } catch (IOException e) {
-                            System.out.println("Error uploading file: " + e.getMessage());
+                        if (argument.isEmpty()) {
+                            System.out.println("You must enter a file to upload.");
+                            break;
                         }
+                        
+                        File fileUpload = new File(fileRootClient + argument);
+                    	if (!fileUpload.exists()) { throw new IOException("File not Found!"); }
+                        sessionManager.sendText(cmd.name() + " " + argument);
+                        sessionManager.uploadFile(fileRootClient + argument);
+                        System.out.println(sessionManager.receiveText());
+                  
                         break;
                     case DOWNLOAD:
-                        try {
-                            if (argument.isEmpty()) {
-                                System.out.println("You must enter a file to download.");
-                                break;
-                            }
-                            sessionManager.sendText(cmd.name() + " " + argument);
-                            sessionManager.downloadFile(fileRootClient + argument);
-                            System.out.println(sessionManager.receiveText());
-                        } catch (IOException e) {
-                            System.out.println("Error downloading file: " + e.getMessage());
+                        if (argument.isEmpty()) {
+                            System.out.println("You must enter a file to download.");
+                            break;
                         }
+                        sessionManager.sendText(cmd.name() + " " + argument);
+                        String infoDownload = sessionManager.receiveText();
+                        if(infoDownload.equals("File not Found!")) {
+                        	throw new IOException(infoDownload);
+                        }
+                        System.out.println(infoDownload);
+                        sessionManager.downloadFile(fileRootClient + argument);
+                        System.out.println(sessionManager.receiveText());
                         break;
                     case DELETE:
-                        try {
-                        	if (argument.isEmpty()) {
-                        		System.out.println("No file/dir to delete specified!");
-                        		break;
-                        	}
-                        	
-                        	sessionManager.sendText(cmd.name() + " " + argument);
-                        	System.out.println(sessionManager.receiveText());
-                        } catch (IOException e) {
-                        	System.out.println("Error on file delete : " + e.getMessage());
-                        }
+                    	if (argument.isEmpty()) {
+                    		System.out.println("No file/dir to delete specified!");
+                    		break;
+                    	}
+                    	
+                    	sessionManager.sendText(cmd.name() + " " + argument);
+                    	System.out.println(sessionManager.receiveText());
                         break;
                     case EXIT:
                         try {
                             sessionManager.sendText(cmd.name());
                             System.out.println(sessionManager.receiveText());
                         } catch (IOException e) {
-                            System.out.println("Error sending exit command: " + e.getMessage());
+                            System.out.println("Error : Sending exit command: " + e.getMessage());
                         }
                         return;
                 }
             } catch (IllegalArgumentException e) {
-                System.out.println("Unknown command: " + command);
+                System.out.println("Error : Unknown command " + command);
+            }catch (IOException e) {
+            	 System.out.println("Error: " + e.getMessage());
             }
         }
     }
