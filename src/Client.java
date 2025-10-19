@@ -10,6 +10,7 @@ public class Client {
     private static boolean isValidIP = false;
     private static String address = null;
     private static int port = 0;
+    private final static String fileRootClient = "./utils/client/";
     
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -53,16 +54,16 @@ public class Client {
                     for(int i = 0; i < 4; ++i) {
                         number = Integer.parseInt(bytes[i]);
                         if (number < 0 || number > 255) {
-                            throw new Exception("Each byte must be within 0 and 255 inclusively.");
+                            throw new Exception("Each byte must be within 0 and 255 inclusively");
                         }
                     }
                     isValidIP = true;
                 } else {
-                    throw new Exception("The IP address must be only 4 byte long.");
+                    throw new Exception("The IP address must be only 4 byte long");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                System.out.println("Please enter a valid IP format.");
+                System.out.println("Please enter a valid IP format");
             }
         }
         
@@ -74,11 +75,11 @@ public class Client {
                 if(port >= 5000 && port <= 5050) {
                     isValidPort = true;
                 } else {
-                    throw new Exception("The port number is not within 5000 and 5050.");
+                    throw new Exception("The port number is not within 5000 and 5050");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                System.out.println("Please enter a valid port number.");
+                System.out.println("Please enter a valid port number");
                 scanner.nextLine();
             }
         }
@@ -88,7 +89,6 @@ public class Client {
         
         String command = "";
         String argument = "";
-        String fileRootClient = "./utils/client/";
         while (true) {
         	
         	System.out.print("> ");
@@ -104,35 +104,38 @@ public class Client {
                 Command cmd = Command.fromString(command);
                 switch (cmd) {
                     case CD:
-                        System.out.println("Change directory");
+                    	sessionManager.sendText(cmd.name() + " " + argument);
+                        System.out.println(sessionManager.receiveText());
                         break;
                     case LS:
-                        System.out.println("List directory");
+                    	sessionManager.sendText(cmd.name() + " " + argument);
+                        System.out.println(sessionManager.receiveText());
                         break;
                     case MKDIR:
-                        System.out.println("Make directory");
+                    	sessionManager.sendText(cmd.name() + " " + argument);
+                        System.out.println(sessionManager.receiveText());
                         break;
                     case UPLOAD:
                         if (argument.isEmpty()) {
-                            System.out.println("You must enter a file to upload.");
+                            System.out.println("You must enter a file to upload");
                             break;
                         }
                         
                         File fileUpload = new File(fileRootClient + argument);
-                    	if (!fileUpload.exists()) { throw new IOException("File not Found!"); }
+                    	if (!fileUpload.exists()) { throw new IOException("File not Found"); }
                         sessionManager.sendText(cmd.name() + " " + argument);
                         sessionManager.uploadFile(fileRootClient + argument);
                         System.out.println(sessionManager.receiveText());
-                  
+                        System.out.println(sessionManager.receiveText());
                         break;
                     case DOWNLOAD:
                         if (argument.isEmpty()) {
-                            System.out.println("You must enter a file to download.");
+                            System.out.println("You must enter a file to download");
                             break;
                         }
                         sessionManager.sendText(cmd.name() + " " + argument);
                         String infoDownload = sessionManager.receiveText();
-                        if(infoDownload.equals("File not Found!")) {
+                        if(infoDownload.equals("File not Found")) {
                         	throw new IOException(infoDownload);
                         }
                         System.out.println(infoDownload);
@@ -149,17 +152,13 @@ public class Client {
                     	System.out.println(sessionManager.receiveText());
                         break;
                     case EXIT:
-                        try {
-                            sessionManager.sendText(cmd.name());
-                            System.out.println(sessionManager.receiveText());
-                        } catch (IOException e) {
-                            System.out.println("Error : Sending exit command: " + e.getMessage());
-                        }
+                        sessionManager.sendText(cmd.name());
+                        System.out.println(sessionManager.receiveText());
                         return;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("Error : Unknown command " + command);
-            }catch (IOException e) {
+            } catch (IOException e) {
             	 System.out.println("Error: " + e.getMessage());
             }
         }
