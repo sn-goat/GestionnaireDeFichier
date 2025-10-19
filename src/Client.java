@@ -144,7 +144,7 @@ public class Client {
                         break;
                     case DELETE:
                     	if (argument.isEmpty()) {
-                    		System.out.println("No file/dir to delete specified!");
+                    		System.out.println("No file/dir to delete specified");
                     		break;
                     	}
                     	
