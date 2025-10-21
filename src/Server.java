@@ -37,7 +37,7 @@ public class Server {
 
     private static void checkParamsServer() {
         Scanner scanner = new Scanner(System.in);
-        int maximumBytes = 4;
+        int maximumBytesIPAddress = 4;
         int highestIntegerValueOneByte = 255;
         int minimumPortNumber = 5000;
         int maximumPortNumber = 5050;
@@ -50,14 +50,13 @@ public class Server {
             int number = 0;
 
             try {
-                if (bytes.length == maximumBytes) {
-                    for (int i = 0; i < maximumBytes; ++i) {
+                if (bytes.length == maximumBytesIPAddress) {
+                    for (int i = 0; i < maximumBytesIPAddress; ++i) {
                         number = Integer.parseInt(bytes[i]);
                         if (number < 0 || number > highestIntegerValueOneByte) {
                             throw new Exception("Each byte must be within 0 and 255 inclusively");
                         }
                     }
-
                     isValidIP = true;
                 } else {
                     throw new Exception("The IP address must be only 4 byte long");
@@ -117,7 +116,7 @@ public class Server {
                 currentDirectory = Server.fileRootServer;
                 return "Changed to root directory: " + currentDirectory;
             }
-            
+
             currentDirectory = currentDirectory.replace("./", "");
 
             File newDir;
@@ -136,7 +135,7 @@ public class Server {
                     currentDirectory = newDir.getAbsolutePath() + File.separator;
                     return "Changed directory to: " + currentDirectory;
                 } else {
-                	throw new IOException("Error: Directory does not exist or access denied");
+                    throw new IOException("Error: Directory does not exist or access denied");
                 }
             }
         }
@@ -146,16 +145,16 @@ public class Server {
             StringBuilder result = new StringBuilder();
 
             if (!dir.exists() || !dir.isDirectory()) {
-            	throw new IOException("Error: Directory does not exist");
+                throw new IOException("Error: Directory does not exist");
             }
 
             File[] files = dir.listFiles();
             if (files == null) {
-            	throw new IOException("Error: Cannot read directory");
+                throw new IOException("Error: Cannot read directory");
             }
-            
+
             if (!currentDirectory.replace("./", "").equals(Server.fileRootServer.substring(2))) {
-            	currentDirectory = currentDirectory.replace("./", "");
+                currentDirectory = currentDirectory.replace("./", "");
             }
 
             result.append("Contents of ").append(currentDirectory).append(":\n");
@@ -177,20 +176,20 @@ public class Server {
 
         private String handleMKDIR(String argument) throws IOException {
             if (argument.isEmpty()) {
-            	throw new IOException("Error: No directory name specified");
+                throw new IOException("Error: No directory name specified");
             }
 
             String cleanDirName = argument.replace("..", "").replace("/", "").replace("\\", "");
 
             File newDir = new File(currentDirectory, cleanDirName);
             if (newDir.exists()) {
-            	throw new IOException("Error: Directory '" + cleanDirName + "' already exists");
+                throw new IOException("Error: Directory '" + cleanDirName + "' already exists");
             }
 
             if (newDir.mkdir()) {
-                return "Directory '" + cleanDirName + "' created successfully in " +  currentDirectory;
+                return "Directory '" + cleanDirName + "' created successfully in " + currentDirectory;
             } else {
-            	throw new IOException("Error: Could not create directory '" + cleanDirName + "'");
+                throw new IOException("Error: Could not create directory '" + cleanDirName + "'");
             }
         }
 
@@ -201,17 +200,17 @@ public class Server {
                 System.out.println("Error handling client#" + clientNumber + " : " + e);
             }
         }
-        
+
         private static String getDate() {
-	        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
-	        Date now = new Date();
-	        String strDate = sdfDate.format(now);
-	        return strDate;
-	    }
-	    
-	    private String getInfo() {
-	        return "[" + this.socket.getLocalAddress().getHostAddress()+ ":" + this.socket.getLocalPort() + " - " + getDate() + "] : ";
-	    }
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
+            Date now = new Date();
+            String strDate = sdfDate.format(now);
+            return strDate;
+        }
+
+        private String getInfo() {
+            return "[" + this.socket.getLocalAddress().getHostAddress() + ":" + this.socket.getLocalPort() + " - " + getDate() + "] : ";
+        }
 
         private void communicateWithClient() throws IOException {
             boolean running = true;
@@ -221,98 +220,105 @@ public class Server {
 
             while (running) {
                 try {
-                	 String input = sessionManager.receiveText();
- 		            
- 		            String command = "";
- 		            String argument = "";
- 		            
- 		            int spaceIndex = input.indexOf(' ');
- 		            if (spaceIndex > 0) {
- 		                command = input.substring(0, spaceIndex);
- 		                argument = input.substring(spaceIndex + 1).trim();
- 		            } else {
- 		                command = input.trim();
- 		            }
- 		            		            
- 		            System.out.println(getInfo() + ""+ command.toLowerCase() + (argument.isEmpty() ? "" : " " + argument));
- 		            
+                    String input = sessionManager.receiveText();
+
+                    String command = "";
+                    String argument = "";
+
+                    int spaceIndex = input.indexOf(' ');
+                    if (spaceIndex > 0) {
+                        command = input.substring(0, spaceIndex);
+                        argument = input.substring(spaceIndex + 1).trim();
+                    } else {
+                        command = input.trim();
+                    }
+
+                    System.out.println(getInfo() + "" + command.toLowerCase() + (argument.isEmpty() ? "" : " " + argument));
+
                     try {
                         Command cmd = Command.fromString(command);
                         switch (cmd) {
                             case CD:
-                            	try {
-                            		String cdResult = handleCD(argument);
-                            		sessionManager.sendText(cdResult);
-                                } catch (IOException e) {
-                                	System.out.println(e.getMessage());
-                                	sessionManager.sendText(e.getMessage());
-                                }
-                            	break;
-                            case LS:
                                 try {
-                                	String lsResult = handleLS();
-                                    sessionManager.sendText(lsResult);
+                                    String cdResult = handleCD(argument);
+                                    sessionManager.sendText(cdResult);
                                 } catch (IOException e) {
-                                	System.out.println(e.getMessage());
-                                	sessionManager.sendText(e.getMessage());
+                                    System.out.println(e.getMessage());
+                                    sessionManager.sendText(e.getMessage());
                                 }
                                 break;
-                            case MKDIR: 
+                            case LS:
                                 try {
-                                	String mkdirResult = handleMKDIR(argument);
+                                    String lsResult = handleLS();
+                                    sessionManager.sendText(lsResult);
+                                } catch (IOException e) {
+                                    System.out.println(e.getMessage());
+                                    sessionManager.sendText(e.getMessage());
+                                }
+                                break;
+                            case MKDIR:
+                                try {
+                                    String mkdirResult = handleMKDIR(argument);
                                     sessionManager.sendText(mkdirResult);
                                 } catch (IOException e) {
-                                	System.out.println(e.getMessage());
-                                	sessionManager.sendText(e.getMessage());
+                                    System.out.println(e.getMessage());
+                                    sessionManager.sendText(e.getMessage());
                                 }
                                 break;
                             case UPLOAD:
                                 if (argument.isEmpty()) {
-                                	System.out.println("Error: No file specified for upload");
+                                    System.out.println("Error: No file specified for upload");
                                     sessionManager.sendText("Error: No file specified for upload");
                                     break;
                                 }
                                 try {
-                                	sessionManager.downloadFile(this.currentDirectory + argument);
-                                	sessionManager.sendText("Uploading...");
-                                	sessionManager.sendText("File " + argument + " has been successfully uploaded");
+                                    sessionManager.downloadFile(this.currentDirectory + argument);
+                                    sessionManager.sendText("Uploading...");
+                                    sessionManager.sendText("File " + argument + " has been successfully uploaded");
                                 } catch (IOException e) {
-                                	System.out.println("Error" + e.getMessage());
-                                	sessionManager.sendText("Error : " + e.getMessage());
+                                    System.out.println("Error" + e.getMessage());
+                                    sessionManager.sendText("Error : " + e.getMessage());
                                 }
                                 break;
                             case DOWNLOAD:
                                 if (argument.isEmpty()) {
-                                	System.out.println("Error: No file specified for upload");
+                                    System.out.println("Error: No file specified for upload");
                                     sessionManager.sendText("Error: No file specified for download");
                                     break;
                                 }
+
                                 File fileDownload = new File(this.currentDirectory + argument);
-                            	if (!fileDownload.exists()) {
-                            		System.out.println("File not found");
-                            		sessionManager.sendText("File not Found");
-                            		break;
-                            	}
-                            	sessionManager.sendText("Downloading...");
-                            	try {
-                            		sessionManager.uploadFile(this.currentDirectory + argument);
-                            		sessionManager.sendText("File " + argument + " has been successfully downloaded");
+                                if (!fileDownload.exists()) {
+                                    System.out.println("File not found");
+                                    sessionManager.sendText("File not found");
+                                    break;
+                                }
+                                sessionManager.sendText("Downloading...");
+
+                                try {
+                                    sessionManager.uploadFile(this.currentDirectory + argument);
+                                    sessionManager.sendText("File " + argument + " has been successfully downloaded");
                                 } catch (IOException e) {
-                                	System.out.println("Error : " + e.getMessage());
-                                	sessionManager.sendText("Error : " + e.getMessage());
+                                    System.out.println("Error : " + e.getMessage());
+                                    sessionManager.sendText("Error : " + e.getMessage());
                                 }
                                 break;
                             case DELETE:
-                            	File fileRef = new File(this.currentDirectory + argument);
-		                    	try {
-		                    		if (!fileRef.exists()) { throw new IOException("File not found"); }
-		                    		if (!fileRef.delete()) { throw new IOException("Unable to delete file"); }
-		                    		sessionManager.sendText("Deleted file: " + argument);
-		                    	} catch (IOException e) {
-		                    		System.out.println("Error : " + e.getMessage());
-		                    		sessionManager.sendText("Error : " + e.getMessage());
-		                    	}
-		                        break;
+                                File fileRef = new File(this.currentDirectory + argument);
+                                try {
+                                    if (!fileRef.exists()) {
+                                        throw new IOException("File not found");
+                                    }
+
+                                    if (!fileRef.delete()) {
+                                        throw new IOException("Unable to delete file");
+                                    }
+                                    sessionManager.sendText("Deleted file: " + argument);
+                                } catch (IOException e) {
+                                    System.out.println("Error : " + e.getMessage());
+                                    sessionManager.sendText("Error : " + e.getMessage());
+                                }
+                                break;
                             case EXIT:
                                 sessionManager.sendText("Goodbye from the server");
                                 running = false;
@@ -322,10 +328,9 @@ public class Server {
                         sessionManager.sendText("Error: Unknown command: " + command);
                     }
                 } catch (IOException e) {
-                	if(e.getMessage()==null) {
-                		running = false;
-                		
-                	}
+                    if (e.getMessage() == null) {
+                        running = false;
+                    }
                     System.out.println("Error : " + e.getMessage());
                 }
             }
